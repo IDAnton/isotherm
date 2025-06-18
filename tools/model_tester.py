@@ -55,7 +55,7 @@ def plot_testing_graphs(prediction_list, x_list, restored_isotherms, kernel, mod
         print(f"{model_name} Error PDF median: {np.median(error_lst):.3f}")
         print(f"{model_name} Roughness PDF median: {np.median(roughness_lst):.3f}")
 
-    error_lst_math, roughness_lst_math = calculate_error_for_math(x, restored_isotherms=restored_isotherms)
+    error_lst_math, roughness_lst_math = calculate_error_for_math(x_list[0], restored_isotherms=restored_isotherms)
     kde_x_math, kde_error_math, kde_fun_math = calculate_kde_data(error_lst_math, stop=150)
     kde_x_math_r, kde_roughness_math, _ = calculate_kde_data(roughness_lst_math, stop=150)
     axis[1].plot(kde_x_math_r, kde_roughness_math, label="math")

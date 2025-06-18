@@ -72,10 +72,10 @@ class App:
         save_dlg = self.app.window(best_match="Name file", found_index=0)
         save_dlg.child_window(best_match="Сохранить4", control_type="Button").click()
 
-        # report_dlg = self.app.window(best_match="Dialog", found_index=0)
-        # report_dlg.child_window(best_match="Закрыть", control_type="Button").click()
-        # isotherm_window.child_window(best_match="Закрыть").click()
-        # time.sleep(0.3)
+        report_dlg = self.app.window(best_match="Dialog", found_index=0)
+        report_dlg.child_window(best_match="Закрыть", control_type="Button").click()
+        isotherm_window.child_window(best_match="Закрыть").click()
+        time.sleep(0.3)
 
 
 def get_unprocessed(files, redy_files):
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     files_to_process = get_unprocessed(files, redy_files)
     print("files_to_process: ", len(files_to_process))
     print(files_to_process)
-    quit()
+    #quit()
     app = App()
     i = 0
     while i < len(files_to_process):

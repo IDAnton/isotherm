@@ -38,32 +38,40 @@ def calculate_kde_data(error_lst, start=0, stop=125, num=1000):
     return x, kde_error(x), kde_error
 
 
-def plot_testing_graphs(prediction, x, restored_isotherms, kernel, model_name):
+def plot_testing_graphs(prediction_list, x_list, restored_isotherms, kernel, model_name_list):
     figure, axis = plt.subplots(2, 1)
-    error_lst, roughness_lst = test_model_predictions(prediction, x, kernel=kernel.T)
-    kde_x, kde_error, kde_fun = calculate_kde_data(error_lst, stop=150)
-    kde_x_r, kde_roughness, _ = calculate_kde_data(roughness_lst, stop=150)
+    for i in range(len(prediction_list)):
+        prediction = prediction_list[i]
+        x = x_list[i]
+        model_name = model_name_list[i]
+        error_lst, roughness_lst = test_model_predictions(prediction, x, kernel=kernel.T)
+        kde_x, kde_error, kde_fun = calculate_kde_data(error_lst, stop=150)
+        kde_x_r, kde_roughness, _ = calculate_kde_data(roughness_lst, stop=150)
+
+        axis[0].plot(kde_x, kde_error, label=model_name)
+        axis[0].scatter(error_lst, kde_fun(error_lst))
+        axis[1].plot(kde_x_r, kde_roughness, label=model_name)
+
+        print(f"{model_name} Error PDF median: {np.median(error_lst):.3f}")
+        print(f"{model_name} Roughness PDF median: {np.median(roughness_lst):.3f}")
 
     error_lst_math, roughness_lst_math = calculate_error_for_math(x, restored_isotherms=restored_isotherms)
     kde_x_math, kde_error_math, kde_fun_math = calculate_kde_data(error_lst_math, stop=150)
     kde_x_math_r, kde_roughness_math, _ = calculate_kde_data(roughness_lst_math, stop=150)
-
-    axis[0].plot(kde_x, kde_error, label=model_name)
-    axis[0].scatter(error_lst, kde_fun(error_lst))
+    axis[1].plot(kde_x_math_r, kde_roughness_math, label="math")
     axis[0].plot(kde_x_math, kde_error_math, label="math")
     axis[0].scatter(error_lst_math, kde_fun_math(error_lst_math))
-    axis[1].plot(kde_x_r, kde_roughness, label=model_name)
-    axis[1].plot(kde_x_math_r, kde_roughness_math, label="math")
+
+    print(f"math Error PDF median: {np.median(error_lst_math):.3f}")
+    print(f"math Roughness PDF median: {np.median(roughness_lst_math):.3f}")
 
     axis[0].grid(True)
     axis[1].grid(True)
     axis[0].legend()
     axis[1].legend()
 
-    axis[0].set_title(
-        f"Error PDF\n model median: {np.median(error_lst):.3f}, math median: {np.median(error_lst_math):.3f}")
+    axis[0].set_title(f"Error PDF")
     axis[0].title.set_size(10)
-    axis[1].set_title(
-        f"Roughness PDF\n model median: {np.median(roughness_lst):.3f}, math median: {np.median(roughness_lst_math):.3f}")
+    axis[1].set_title(f"Roughness PDF")
     axis[1].title.set_size(10)
     plt.show()

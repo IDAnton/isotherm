@@ -11,6 +11,7 @@ import itertools
 import os
 import hickle as hkl
 from scipy.stats import lognorm
+import scipy.stats as stats
 
 mpl.use('TkAgg')
 plt.rcParams.update({'font.size': 14})
@@ -49,16 +50,33 @@ class Generator:
         self.pore_distribution = (pore_distribution1 * a + pore_distribution2 * (1 - a)) * global_scale
         self.pore_distribution /= max(self.pore_distribution)
 
-    def generate_log_normal_pore_distribution(self, max_peaks_number):
-        pore_distribution = np.zeros_like(self.a_array)
-        peaks_number = random.randint(1, max_peaks_number)
-        for _ in range(peaks_number):
-            mu = np.random.uniform(np.log(0.5), np.log(60))
-            sigma = np.random.uniform(0.1, 1.5)
-            amp = np.random.uniform(0.1, 1.0)
+    def generate_random_pore_distribution(self, max_peaks_number, d_range, sigma_range, intensity_range):
+        pore_distribution = np.zeros(self.a_array.size)
+        peaks_number = np.random.randint(2, max_peaks_number)
+        for i in range(peaks_number):
+            d = random.uniform(d_range[0], d_range[1])
+            sigma = random.uniform(sigma_range[0], sigma_range[1])
+            intensity = random.uniform(intensity_range[0], intensity_range[1])
+            pore_distribution += (1 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * np.power((self.a_array - d), 2)
+                                                                             / (2 * sigma ** 2)) * intensity
+        pore_distribution /= max(pore_distribution)
+        self.pore_distribution = pore_distribution
+        return pore_distribution
 
-            dist = lognorm(s=sigma, scale=np.exp(mu))
-            pore_distribution += amp * dist.pdf(self.a_array)
+    def generate_log_normal_pore_distribution(self, max_peaks_number):
+        def custom_lognormal(x, M, sigma, A=1.0):
+            return A * (1 / x) * np.exp(-((np.log(x / M)) ** 2) / (2 * sigma ** 2))
+
+        pore_distribution = np.zeros_like(self.a_array)
+        peaks_number = random.randint(2, max_peaks_number)
+        for _ in range(peaks_number):
+            mu = np.random.uniform(0.1, 60)
+            sigma = np.random.uniform(0.01, 1.5)
+            amp = np.random.uniform(0.1, 1.0)
+            #
+            # dist = lognorm(s=sigma, scale=np.exp(mu))
+            # pore_distribution += amp * dist.pdf(self.a_array)
+            pore_distribution += custom_lognormal(self.a_array, mu, sigma, amp)
 
         # target_pore_volume = np.random.uniform(0.2, 2)
         # total_area = np.trapz(pore_distribution, self.a_array)
@@ -158,8 +176,8 @@ class Generator:
         isotherm_data = np.empty((number_of_isotherms, self.n_s[:-10].size))
         pore_distribution_data = np.empty((number_of_isotherms, self.pore_distribution.size))
         for i in range(number_of_isotherms):
-            #self.generate_random_pore_distribution(10, [-10, 80], [0.4, 20], intensity_range=[0, 1])
-            self.generate_log_normal_pore_distribution(5)
+            #self.generate_random_pore_distribution(10, [-10, 45], [0.8, 20], intensity_range=[0.1, 1])
+            self.generate_log_normal_pore_distribution(10)
             self.calculate_isotherms()
             isotherm_data[i] = self.n_s[:-10]
 

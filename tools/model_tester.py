@@ -49,7 +49,7 @@ def plot_testing_graphs(prediction_list, x_list, restored_isotherms, kernel, mod
         kde_x_r, kde_roughness, _ = calculate_kde_data(roughness_lst, stop=150)
 
         axis[0].plot(kde_x, kde_error, label=model_name)
-        axis[0].scatter(error_lst, kde_fun(error_lst))
+        #axis[0].scatter(error_lst, kde_fun(error_lst))
         axis[1].plot(kde_x_r, kde_roughness, label=model_name)
 
         print(f"{model_name} Error PDF median: {np.median(error_lst):.3f}")
@@ -60,7 +60,7 @@ def plot_testing_graphs(prediction_list, x_list, restored_isotherms, kernel, mod
     kde_x_math_r, kde_roughness_math, _ = calculate_kde_data(roughness_lst_math, stop=150)
     axis[1].plot(kde_x_math_r, kde_roughness_math, label="math")
     axis[0].plot(kde_x_math, kde_error_math, label="math")
-    axis[0].scatter(error_lst_math, kde_fun_math(error_lst_math))
+    #axis[0].scatter(error_lst_math, kde_fun_math(error_lst_math))
 
     print(f"math Error PDF median: {np.median(error_lst_math):.3f}")
     print(f"math Roughness PDF median: {np.median(roughness_lst_math):.3f}")

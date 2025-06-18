@@ -1,0 +1,12 @@
+/.ipynb_checkpoints
+/venv
+/venv311
+/venv312
+/venv10
+.idea
+/__pycache__/
+*.mp4
+*.pyc
+/animations/
+/old notebooks/
+/cation_problem/logs/

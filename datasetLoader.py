@@ -15,7 +15,7 @@ def pre_process_isotherm_with_distribution(isotherm, distribution, scale=False):
         isotherm = isotherm / isotherm_scale
         distribution = distribution / isotherm_scale
     return isotherm, distribution
-def load_dataset(path):
+def load_dataset(path, scale=True):
     min_exp_pressure_i = 77
     max_exp_pressure_i = -10  # silcia [40:458] # carbon [40:547] ////// reports: [77:-10]
     with open(path, 'rb') as f:
@@ -29,7 +29,7 @@ def load_dataset(path):
         #isotherm, pore_distribution = pre_process_isotherm_with_distribution(isotherm_data[i][min_exp_pressure_i:max_exp_pressure_i],
         #                                                  pore_distribution_data[i]) # for generated dataset
         isotherm, pore_distribution = pre_process_isotherm_with_distribution(
-            isotherm_data[i], pore_distribution_data[i], scale=True)
+            isotherm_data[i], pore_distribution_data[i], scale=scale)
         x[i] = isotherm
         y[i] = pore_distribution
     x, y = shuffle(x, y)

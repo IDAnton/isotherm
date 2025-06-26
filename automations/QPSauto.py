@@ -9,6 +9,7 @@ from os.path import isfile, join
 class App:
     def __init__(self):
         self.app = Application(backend='uia').start(r"C:\\Program Files (x86)\VersaWin\VersaWin.exe")
+
         time.sleep(0.3)
         self.window = self.app.window(best_match='Quantachrome')
 

@@ -20,7 +20,7 @@ plt.rcParams.update({'font.size': 14})
 # plt.rcParams.update({'font.family': 'Times New Roman'})
 
 class Generator:
-    def __init__(self, path_s, path_d, path_p_s, path_p_d, path_a):
+    def __init__(self, path_s, path_d, path_p_s, path_p_d, path_a, cut_tabel=None):
         with open(path_s, 'rb') as f:
             self.data_sorb = np.load(f)
         with open(path_d, 'rb') as f:
@@ -32,6 +32,9 @@ class Generator:
             self.pressures_s = np.load(f)
         with open(path_a, 'rb') as f:
             self.a_array = np.load(f)
+
+        if cut_tabel is not None:
+            self.cut_tabel = np.load(cut_tabel)
 
         self.pore_distribution = np.empty(self.a_array.size)
         self.n_s = np.zeros(len(self.pressures_s))  # adsorption isotherm data
@@ -209,10 +212,7 @@ class Generator:
     def generate_data_set_several_random_peaks(self, name, number_of_isotherms):
         print(f"Generating {name} with {number_of_isotherms} isotherms")
 
-        pore_size_cut_grid = np.array([0.863, 0.863, 0.902, 0.982, 1.061, 1.061, 1.061, 1.167,
-                                       1.220, 1.220, 1.220, 1.273, 1.379, 1.432, 1.432, 1.564])
-        pressure_cut_grid = np.array([1e-7, 1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 2e-4, 4e-4,
-                                      6e-4, 8e-4, 1e-3, 2e-3, 4e-3, 6e-3, 8e-3, 1e-2])
+
         def find_nearest_idx(array, value):
             array = np.asarray(array)
             idx = (np.abs(array - value)).argmin()
@@ -220,16 +220,16 @@ class Generator:
 
 
         path = f'data/datasets/{name}.npz'
-        isotherm_data = np.empty((number_of_isotherms, self.n_s[:-10].size))
+        isotherm_data = np.empty((number_of_isotherms, self.n_s[:].size))
         pore_distribution_data = np.empty((number_of_isotherms, self.pore_distribution.size))
         for i in range(number_of_isotherms):
             #self.generate_random_pore_distribution(10, [-10, 45], [0.8, 20], intensity_range=[0.1, 1])
             self.generate_combined_pore_distribution(10, [-10, 45], [0.8, 20], intensity_range=[0.1, 1])
             self.calculate_isotherms()
-            isotherm_data[i] = self.n_s[:-10]
+            isotherm_data[i] = self.n_s[:]
 
-            j = random.randint(0, len(pressure_cut_grid)-1)
-            cut_pressure_i = find_nearest_idx(self.pressures_s[:10], pressure_cut_grid[j])
+            cut_pressure = random.choice(self.cut_tabel[:32])[0]
+            cut_pressure_i = find_nearest_idx(self.pressures_s, cut_pressure)
 
             isotherm_data[i][:cut_pressure_i] = np.zeros(shape=cut_pressure_i)
 
@@ -321,7 +321,15 @@ if __name__ == "__main__":
                            path_a="data/initial kernels/Size_Kernel_Carbon_Adsorption.npy"
                            )
 
-    gen_silica.generate_data_set_several_random_peaks(number_of_isotherms=100_000, name="silica_random_combined")
+    gen_new_carbon = Generator(path_s="data/initial kernels/new_kernel/kernel.npy",
+                           path_d="data/initial kernels/new_kernel/kernel.npy",
+                           path_p_d="data/initial kernels/new_kernel/pressure.npy",
+                           path_p_s="data/initial kernels/new_kernel/pressure.npy",
+                           path_a="data/initial kernels/new_kernel/pore_sizes.npy",
+                            cut_tabel= "data/initial kernels/new_kernel/cut_tabel.npy"
+                               )
+
+    gen_new_carbon.generate_data_set_several_random_peaks(number_of_isotherms=100_000, name="carbon_random_combined")
 
     # gen_silica.generate_data_set(data_len=5, name="silica_PINN")
     # gen_carbon.generate_data_set(data_len=8, name="Carbon_classification")

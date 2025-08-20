@@ -15,7 +15,7 @@ def pre_process_isotherm_with_distribution(isotherm, distribution, scale=False):
         isotherm = isotherm / isotherm_scale
         distribution = distribution / isotherm_scale
     return isotherm, distribution
-def load_dataset(path, scale=True):
+def load_dataset(path, scale=True, cut_end_idx=-1):
     min_exp_pressure_i = 77
     max_exp_pressure_i = -10  # silcia [40:458] # carbon [40:547] ////// reports: [77:-10]
     with open(path, 'rb') as f:
@@ -23,14 +23,14 @@ def load_dataset(path, scale=True):
         isotherm_data = dataset["isotherm_data"]
         pore_distribution_data = dataset["pore_distribution_data"]
     #x = np.empty((isotherm_data.shape[0], (-min_exp_pressure_i + max_exp_pressure_i))) for generated dataset
-    x = np.empty(shape=isotherm_data.shape)  # for report
+    x = np.empty(shape=(isotherm_data.shape[0], isotherm_data.shape[1]  + cut_end_idx))  # for report
     y = np.empty(pore_distribution_data.shape)
     for i in range(len(isotherm_data)):
         #isotherm, pore_distribution = pre_process_isotherm_with_distribution(isotherm_data[i][min_exp_pressure_i:max_exp_pressure_i],
         #                                                  pore_distribution_data[i]) # for generated dataset
         isotherm, pore_distribution = pre_process_isotherm_with_distribution(
             isotherm_data[i], pore_distribution_data[i], scale=scale)
-        x[i] = isotherm
+        x[i] = isotherm[:cut_end_idx]
         y[i] = pore_distribution
     x, y = shuffle(x, y)
     return x, y

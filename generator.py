@@ -112,7 +112,7 @@ class Generator:
             d = random.uniform(d_range[0], d_range[1])
             sigma = random.uniform(sigma_range[0], sigma_range[1])
             intensity = random.uniform(intensity_range[0], intensity_range[1])
-            if random.random() < 0.5:
+            if random.random() < 1:
                 pore_distribution += (1 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * np.power((self.a_array - d), 2)
                                                                              / (2 * sigma ** 2)) * intensity
             else:
@@ -123,6 +123,13 @@ class Generator:
                     pore_distribution += self.__custom_lognormal__(self.a_array, mu, sigma, amp)
                 else:
                     pore_distribution += self.__mirror_lognormal__(self.a_array, mu, sigma, amp)
+
+        if random.random() < 0.33:
+            d = random.uniform(-10, 10)
+            sigma = random.uniform(0.33, 1)
+            intensity = random.uniform(0.1, 1)
+            pore_distribution += (1 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * np.power((self.a_array - d), 2)
+                                                                             / (2 * sigma ** 2)) * intensity
 
         if max(pore_distribution) != 0:
             pore_distribution /= max(pore_distribution)
@@ -321,15 +328,15 @@ if __name__ == "__main__":
                            path_a="data/initial kernels/Size_Kernel_Carbon_Adsorption.npy"
                            )
 
-    gen_new_carbon = Generator(path_s="data/initial kernels/new_kernel/kernel.npy",
-                           path_d="data/initial kernels/new_kernel/kernel.npy",
+    gen_new_carbon = Generator(path_s="data/initial kernels/new_kernel/new_kernel.npy",
+                           path_d="data/initial kernels/new_kernel/new_kernel.npy",
                            path_p_d="data/initial kernels/new_kernel/pressure.npy",
                            path_p_s="data/initial kernels/new_kernel/pressure.npy",
                            path_a="data/initial kernels/new_kernel/pore_sizes.npy",
                             cut_tabel= "data/initial kernels/new_kernel/cut_tabel.npy"
                                )
 
-    gen_new_carbon.generate_data_set_several_random_peaks(number_of_isotherms=100_000, name="carbon_random_combined")
+    gen_new_carbon.generate_data_set_several_random_peaks(number_of_isotherms=100_000, name="carbon_random_normal_micro")
 
     # gen_silica.generate_data_set(data_len=5, name="silica_PINN")
     # gen_carbon.generate_data_set(data_len=8, name="Carbon_classification")
